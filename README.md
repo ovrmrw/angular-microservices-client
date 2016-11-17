@@ -1,6 +1,8 @@
 # microservices-angular-client
 (experimental)
 
+[Demo on GitHub Pages](https://ovrmrw.github.io/microservices-angular-client/)
+
 ---
 
 (angular-cli)
