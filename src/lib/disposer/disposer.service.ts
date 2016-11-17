@@ -8,6 +8,12 @@ export class DisposerService {
   private _subscriptionObjects: TokenSubscription[] = [];
 
 
+  set add(sub: Subscription) {
+    const token = this;
+    this._subscriptionObjects.push({ token, sub });
+  }
+
+
   register(...subs: Subscription[]): void {
     const token = this;
     subs.forEach(sub => {

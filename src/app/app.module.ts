@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
+import { ProfileComponent } from './profile/profile.component';
 
 import { AuthModule } from '../lib/auth';
 import { DisposerModule } from '../lib/disposer';
@@ -11,7 +12,8 @@ import { DisposerModule } from '../lib/disposer';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ProfileComponent,
   ],
   imports: [
     BrowserModule,

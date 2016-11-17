@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, Jsonp, Headers, Response } from '@angular/http';
+import { AuthHttp } from 'angular2-jwt';
 import { Observable, BehaviorSubject } from 'rxjs/Rx';
 import * as firebase from 'firebase';
 
@@ -7,7 +8,7 @@ import { fireauthConfig, authenticationServerConfig } from './fireauth.config';
 
 firebase.initializeApp(fireauthConfig);
 
-const HOST = authenticationServerConfig.host;
+const ENDPOINT = authenticationServerConfig.host + authenticationServerConfig.endpoint + authenticationServerConfig.query;
 
 
 @Injectable()
@@ -17,15 +18,21 @@ export class FirebaseAuthService {
 
 
   constructor(
+    // private http: Http,
     private http: Http,
   ) {
     this.stanby();
   }
 
 
-  login(userId: string): void {
-    this.http.post(HOST + '/createCustomToken', JSON.stringify({ userId }))
-      .map(res => res.json() as { customToken: string })
+  login(idToken: string, user_id: string): void {
+    const headers = new Headers();    
+    headers.append('Authorization', 'Bearer ' + idToken);
+    headers.append('Access-Control-Allow-Origin', '*');
+
+    this.http.post(ENDPOINT, { user_id }, { headers })
+      .timeoutWith(2000, Observable.throw('timeout'))
+      .map(res => res.json().result as { customToken: string })
       .subscribe(result => {
         console.log('createCustomToken result:', result);
         firebase.auth().signInWithCustomToken(result.customToken)

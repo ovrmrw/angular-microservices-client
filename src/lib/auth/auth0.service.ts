@@ -84,7 +84,10 @@ export class Auth0Service {
       const parsedProfile: Auth0UserProfile = JSON.parse(profile);
       this.auth0UserProfile$.next(parsedProfile);
       if (this.fireauthService) {
-        this.fireauthService.login(parsedProfile.user_id);
+        const idToken: string | null = localStorage.getItem(AUTH0_ID_TOKEN);
+        if (idToken) {
+          this.fireauthService.login(idToken, parsedProfile.user_id);
+        }
       }
     } else {
       this.auth0UserProfile$.next(null);

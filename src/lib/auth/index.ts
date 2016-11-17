@@ -1,2 +1,3 @@
 export { AuthModule } from './auth.module';
-export { Auth0Service, AUTH0_ID_TOKEN } from './auth0.service';
+export { Auth0Service } from './auth0.service';
+export { FirebaseAuthService } from './fireauth.service';

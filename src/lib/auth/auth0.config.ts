@@ -1,4 +1,4 @@
 export const auth0Config = {
-  auth0ClientId: 'au7faKyMzWX8XDyF4LsDbW9K0g23C7NM',
+  auth0ClientId: 'gPSncl3GOKHcqgWvb9shxJC6hgIcAxNk',
   auth0Domain: 'ovrmrw.auth0.com',
 };
