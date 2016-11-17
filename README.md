@@ -1,4 +1,4 @@
-# angular-microservices-client
+# microservices-angular-client
 (experimental)
 
 ---
