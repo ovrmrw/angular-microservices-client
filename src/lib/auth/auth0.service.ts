@@ -17,7 +17,7 @@ const auth0ClientId = config.auth0ClientId;
 const auth0Domain = config.auth0Domain;
 const auth0Options = {
   auth: {
-    redirect: false
+    // redirect: false
   },
   autoclose: true,
 };

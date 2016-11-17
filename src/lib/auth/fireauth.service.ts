@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Http, Jsonp, Headers, Response } from '@angular/http';
-import { AuthHttp } from 'angular2-jwt';
+import { Http, Headers } from '@angular/http';
 import { Observable, BehaviorSubject } from 'rxjs/Rx';
 import * as firebase from 'firebase';
 
-import { fireauthConfig, authenticationServerConfig } from './fireauth.config';
+import { fireauthConfig, createCustomTokenFunctionConfig as functionConfig } from './fireauth.config';
 
 firebase.initializeApp(fireauthConfig);
 
-const ENDPOINT = authenticationServerConfig.host + authenticationServerConfig.endpoint + authenticationServerConfig.query;
+const ENDPOINT = functionConfig.api + functionConfig.function;
 
 
 @Injectable()
@@ -25,10 +24,11 @@ export class FirebaseAuthService {
   }
 
 
-  login(idToken: string, user_id: string): void {
-    const headers = new Headers();    
-    headers.append('Authorization', 'Bearer ' + idToken);
-    headers.append('Access-Control-Allow-Origin', '*');
+  login(auth0IdToken: string, user_id: string): void {
+    const headers = new Headers({
+      'Authorization': 'Bearer ' + auth0IdToken,
+      'x-functions-key': functionConfig.code,
+    });
 
     this.http.post(ENDPOINT, { user_id }, { headers })
       .timeoutWith(2000, Observable.throw('timeout'))
@@ -50,6 +50,7 @@ export class FirebaseAuthService {
     firebase.auth().onAuthStateChanged((user: User) => {
       if (user) {
         console.log('Firebase Auth: LOG-IN');
+        console.log('user:', user);
         this.firebaseCurrentUser$.next(user);
       } else {
         console.log('Firebase Auth: LOG-OUT');

@@ -7,8 +7,8 @@ export const fireauthConfig = {
 };
 
 
-export const authenticationServerConfig = {
-  host: 'https://second-azure-functions.azurewebsites.net/api',
-  endpoint: '/createCustomToken',
-  query: '?code=qbdp15u2brv0fr04eku766romygls191rledjzbp22o6rf60l1b7t1xvnod2ngexi6hia4i',
+export const createCustomTokenFunctionConfig = {
+  api: 'https://second-azure-functions.azurewebsites.net/api/',
+  function: 'createCustomToken',
+  code: 'qbdp15u2brv0fr04eku766romygls191rledjzbp22o6rf60l1b7t1xvnod2ngexi6hia4i',
 };
