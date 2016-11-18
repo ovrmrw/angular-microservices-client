@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
-import { Observable, BehaviorSubject } from 'rxjs/Rx';
+import { Observable, BehaviorSubject, ReplaySubject } from 'rxjs/Rx';
 import * as firebase from 'firebase';
 
 import { fireauthConfig, createCustomTokenFunctionConfig as functionConfig } from './fireauth.config';
@@ -12,8 +12,8 @@ const ENDPOINT = functionConfig.api + functionConfig.function;
 
 @Injectable()
 export class FirebaseAuthService {
-  readonly firebaseAuthenticated = new BehaviorSubject<boolean>(false);
-  readonly firebaseCurrentUser$ = new BehaviorSubject<User | null>(null);
+  // readonly firebaseAuthenticated = new BehaviorSubject<boolean>(false);
+  readonly firebaseCurrentUser$ = new ReplaySubject<User | null>();
 
 
   constructor(
@@ -31,7 +31,7 @@ export class FirebaseAuthService {
     });
 
     this.http.post(ENDPOINT, { user_id }, { headers })
-      .timeoutWith(2000, Observable.throw('timeout'))
+      // .timeoutWith(2000, Observable.throw('timeout'))
       .map(res => res.json().result as { customToken: string })
       .subscribe(result => {
         console.log('createCustomToken result:', result);
@@ -57,6 +57,19 @@ export class FirebaseAuthService {
         this.firebaseCurrentUser$.next(null);
       }
     });
+  }
+
+
+  writeUserProfile(auth0UserProfile: Auth0UserProfile) {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      firebase.database().ref('profile/' + user.uid + '/auth0').set(auth0UserProfile)
+        .catch(err => console.error(err));
+
+      const writableUser = JSON.parse(JSON.stringify(user));
+      firebase.database().ref('profile/' + user.uid + '/firebase').set(writableUser)
+        .catch(err => console.error(err));
+    }
   }
 
 

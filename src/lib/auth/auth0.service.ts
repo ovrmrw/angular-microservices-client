@@ -1,5 +1,5 @@
 import { Injectable, Optional, Inject } from '@angular/core';
-import { Observable, BehaviorSubject, Subject } from 'rxjs/Rx';
+import { Observable, BehaviorSubject, ReplaySubject, Subject } from 'rxjs/Rx';
 import { tokenNotExpired } from 'angular2-jwt';
 // import * as firebase from 'firebase';
 declare const Auth0Lock: Auth0LockStatic;
@@ -26,8 +26,8 @@ const auth0Options = {
 @Injectable()
 export class Auth0Service {
   private lock: Auth0LockStatic;
-  readonly auth0Authenticated$ = new BehaviorSubject<boolean>(false);
-  readonly auth0UserProfile$ = new BehaviorSubject<Auth0UserProfile | null>(null);
+  // readonly auth0Authenticated$ = new BehaviorSubject<boolean>(false);
+  readonly auth0UserProfile$ = new ReplaySubject<Auth0UserProfile | null>();
 
 
   constructor(
@@ -77,7 +77,7 @@ export class Auth0Service {
     } else {
       console.log('Auth0: LOG-OUT');
     }
-    this.auth0Authenticated$.next(isAuthenticated);
+    // this.auth0Authenticated$.next(isAuthenticated);
 
     const profile: string | null = localStorage.getItem(AUTH0_PROFILE);
     if (profile && isAuthenticated) {
