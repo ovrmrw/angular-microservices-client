@@ -34,22 +34,24 @@ export class Auth0Service {
     @Inject(FirebaseAuthService) @Optional()
     private fireauthService: FirebaseAuthService | null,
   ) {
-    this.nextAuthenticatedState();
+    (async () => {
+      await this.nextAuthenticatedState();
 
-    this.lock = new Auth0Lock(auth0ClientId, auth0Domain, auth0Options);
+      this.lock = new Auth0Lock(auth0ClientId, auth0Domain, auth0Options);
 
-    this.lock.on('authenticated', authResult => {
-      localStorage.setItem(AUTH0_ID_TOKEN, authResult.idToken);
-      console.log('authResult:', authResult);
-      this.nextAuthenticatedState();
+      this.lock.on('authenticated', async (authResult) => {
+        localStorage.setItem(AUTH0_ID_TOKEN, authResult.idToken);
+        console.log('authResult:', authResult);
+        await this.nextAuthenticatedState();
 
-      this.lock.getProfile(authResult.idToken, (err, profile) => {
-        if (err) { throw err; }
-        localStorage.setItem(AUTH0_PROFILE, JSON.stringify(profile));
-        console.log('profile:', profile);
-        this.nextAuthenticatedState();
+        this.lock.getProfile(authResult.idToken, async (err, profile) => {
+          if (err) { throw err; }
+          localStorage.setItem(AUTH0_PROFILE, JSON.stringify(profile));
+          console.log('profile:', profile);
+          await this.nextAuthenticatedState();
+        });
       });
-    });
+    })();
   }
 
 
@@ -62,7 +64,6 @@ export class Auth0Service {
     localStorage.removeItem(AUTH0_ID_TOKEN);
     localStorage.removeItem(AUTH0_PROFILE);
     await this.nextAuthenticatedState();
-    return;
   }
 
 
@@ -96,7 +97,6 @@ export class Auth0Service {
         await this.fireauthService.logout();
       }
     }
-    return;
   }
 
 }

@@ -40,12 +40,11 @@ export class FirebaseAuthService {
     } catch (err) {
       console.error(err);
     }
-    return;
   }
 
 
   async logout(): Promise<void> {
-    return await firebase.auth().signOut();
+    await firebase.auth().signOut();
   }
 
 
@@ -63,17 +62,15 @@ export class FirebaseAuthService {
   }
 
 
-  writeUserProfile(auth0UserProfile: Auth0UserProfile, firebaseUser: firebase.User): void {
+  async writeUserProfile(auth0UserProfile: Auth0UserProfile, firebaseUser: firebase.User): Promise<void> {
     const user = firebase.auth().currentUser;
     if (user) {
-      firebase.database().ref('profile/' + user.uid + '/auth0').set(auth0UserProfile)
-        .then(() => { })
-        .catch(err => console.error(err));
+      const p1 = firebase.database().ref('profile/' + user.uid + '/auth0').set(auth0UserProfile) as Promise<any>;
 
       const parsedFirebaseUser = JSON.parse(JSON.stringify(firebaseUser));
-      firebase.database().ref('profile/' + user.uid + '/firebase').set(parsedFirebaseUser)
-        .then(() => { })
-        .catch(err => console.error(err));
+      const p2 = firebase.database().ref('profile/' + user.uid + '/firebase').set(parsedFirebaseUser) as Promise<any>;
+
+      await Promise.all([p1, p2]).catch(err => console.error(err));
     }
   }
 

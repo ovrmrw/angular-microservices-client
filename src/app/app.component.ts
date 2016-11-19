@@ -27,20 +27,20 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-    this.disposer.register(
+    this.disposer.add =
       Observable.combineLatest(
         this.authService.currentUserProfile$,
-        this.firebaseService.currentUser$
+        this.firebaseService.currentUser$,
       ).subscribe(users => {
         this.user = users[0];
         this.firebaseUser = users[1];
         this.cd.markForCheck();
         this.cd.detectChanges();
         if (this.user && this.firebaseUser) {
-          this.firebaseService.writeUserProfile(this.user, this.firebaseUser);
+          this.firebaseService.writeUserProfile(this.user, this.firebaseUser)
+            .then(() => console.log('writeUserProfile is successed.'));
         }
-      })
-    );
+      });
   }
 
 
