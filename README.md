@@ -1,7 +1,7 @@
 # microservices-angular-client
 (experimental)
 
-[Demo on GitHub Pages](https://ovrmrw.github.io/microservices-angular-client/)
+[Demo on Firebase Hosting](https://microservices-b78e1.firebaseapp.com)
 
 ---
 
