@@ -22,7 +22,7 @@ import { DisposerModule } from '../lib/disposer';
     AuthModule,
     DisposerModule,
   ],
-  providers: [],
+  // providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

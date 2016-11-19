@@ -1,22 +1,25 @@
-import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 
-import { Auth0Service } from '../../lib/auth';
+import { Auth0Service, FirebaseUser } from '../../lib/auth';
 
 
 @Component({
   selector: 'my-profile',
-  template: `
-    <button *ngIf="!user" (click)="login()">Log in</button>
-    <button *ngIf="user" (click)="logout()">Log out</button>
-    <h2 *ngIf="!firebaseUser">Firebase Auth</h2>
-    <h2 *ngIf="firebaseUser">Firebase Auth (カスタム認証)</h2>
+  template: `    
+    <button *ngIf="!user" (click)="login()" class="btn btn-outline-primary">Log in</button>
+    <button *ngIf="user" (click)="logout()" class="btn btn-outline-danger">Log out</button>
+    <h2 *ngIf="!firebaseUser" class="display-4">Firebase Auth</h2>
+    <h2 *ngIf="firebaseUser" class="display-4">Firebase Auth (カスタム認証)</h2>
     <div>
       <pre>{{firebaseUser | json}}</pre>
     </div>
-    <h2 *ngIf="!user">Auth0</h2>
-    <h2 *ngIf="user">Auth0 (provider: {{user?.identities[0].provider}})</h2>
+    <h2 *ngIf="!user" class="display-4">Auth0</h2>
+    <h2 *ngIf="user" class="display-4">Auth0 (provider: {{user?.identities[0].provider}})</h2>
     <div>
-      <img *ngIf="user" [src]="user.picture" width=100 height=100 />
+      <figure *ngIf="user" class="figure">
+        <img [src]="user.picture" class="figure-img img-fluid rounded" alt="user picture" width=150 height=150>
+        <figcaption class="figure-caption">picture of {{user.nickname || user.name}}</figcaption>
+      </figure>
       <pre>{{user | json}}</pre>      
     </div>    
   `,
@@ -26,27 +29,27 @@ export class ProfileComponent implements OnChanges {
   @Input()
   user: Auth0UserProfile | null;
   @Input()
-  firebaseUser: any;
+  firebaseUser: FirebaseUser | null;
+
 
   constructor(
     private authService: Auth0Service,
-    // private cd: ChangeDetectorRef,
   ) { }
 
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log(changes);
-    // this.cd.markForCheck();
+    console.log('changes:', changes);
   }
 
 
-  login() {
+  login(): void {
     this.authService.login();
   }
 
 
-  logout() {
-    this.authService.logout();
+  async logout(): Promise<void> {
+    await this.authService.logout();
+    alert('You are now logged out');
   }
 
 }

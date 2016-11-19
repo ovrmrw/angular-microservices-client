@@ -1,8 +1,8 @@
 import { Injectable, Optional, Inject } from '@angular/core';
-import { Observable, BehaviorSubject, ReplaySubject, Subject } from 'rxjs/Rx';
+import { Observable, ReplaySubject } from 'rxjs/Rx';
 import { tokenNotExpired } from 'angular2-jwt';
 // import * as firebase from 'firebase';
-declare const Auth0Lock: Auth0LockStatic;
+import Auth0Lock from 'auth0-lock';
 
 import { FirebaseAuthService } from './fireauth.service';
 import { auth0Config as config } from './auth0.config';
@@ -58,10 +58,11 @@ export class Auth0Service {
   }
 
 
-  logout(): void {
+  async logout(): Promise<void> {
     localStorage.removeItem(AUTH0_ID_TOKEN);
     localStorage.removeItem(AUTH0_PROFILE);
-    this.nextAuthenticatedState();
+    await this.nextAuthenticatedState();
+    return;
   }
 
 
@@ -70,7 +71,7 @@ export class Auth0Service {
   }
 
 
-  private nextAuthenticatedState(): void {
+  private async nextAuthenticatedState(): Promise<void> {
     const isAuthenticated: boolean = tokenNotExpired(AUTH0_ID_TOKEN);
     if (isAuthenticated) {
       console.log('Auth0: LOG-IN');
@@ -86,15 +87,16 @@ export class Auth0Service {
       if (this.fireauthService) {
         const idToken: string | null = localStorage.getItem(AUTH0_ID_TOKEN);
         if (idToken) {
-          this.fireauthService.login(idToken, parsedProfile.user_id);
+          await this.fireauthService.login(idToken, parsedProfile.user_id);
         }
       }
     } else {
       this.auth0UserProfile$.next(null);
       if (this.fireauthService) {
-        this.fireauthService.logout();
+        await this.fireauthService.logout();
       }
     }
+    return;
   }
 
 }

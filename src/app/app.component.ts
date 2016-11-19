@@ -1,7 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
-import { Auth0Service, FirebaseAuthService } from '../lib/auth';
+import { Auth0Service, FirebaseAuthService, FirebaseUser } from '../lib/auth';
 import { DisposerService } from '../lib/disposer';
 
 
@@ -16,7 +16,7 @@ import { DisposerService } from '../lib/disposer';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'app works!';
   user: Auth0UserProfile | null;
-  firebaseUser: any;
+  firebaseUser: FirebaseUser | null;
 
   constructor(
     private authService: Auth0Service,
@@ -37,7 +37,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.cd.markForCheck();
         this.cd.detectChanges();
         if (this.user && this.firebaseUser) {
-          this.firebaseService.writeUserProfile(this.user);
+          this.firebaseService.writeUserProfile(this.user, this.firebaseUser);
         }
       })
     );

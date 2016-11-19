@@ -24,6 +24,7 @@
     "angular2-apollo": "^0.8.0",
     "angular2-jwt": "^0.1.25",
     "apollo-client": "^0.5.3",
+    "auth0-lock": "^10.6.1",
     "core-js": "^2.4.1",
     "firebase": "^3.6.0",
     "graphql-tag": "^0.1.16",
