@@ -8,6 +8,7 @@ import { ProfileComponent } from './profile/profile.component';
 
 import { AuthModule } from '../lib/auth';
 import { DisposerModule } from '../lib/disposer';
+import { StoreModule } from '../lib/store';
 
 
 @NgModule({
@@ -21,8 +22,9 @@ import { DisposerModule } from '../lib/disposer';
     HttpModule,
     AuthModule,
     DisposerModule,
+    StoreModule,
   ],
-  // providers: [],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

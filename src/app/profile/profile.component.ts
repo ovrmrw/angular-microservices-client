@@ -1,40 +1,40 @@
-import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 
-import { Auth0Service, FirebaseUser } from '../../lib/auth';
+import { AuthService } from '../../lib/auth';
+import { AuthUser, FirebaseUser } from '../../lib/types';
 
 
 @Component({
   selector: 'my-profile',
   template: `    
-    <button *ngIf="!user" (click)="login()" class="btn btn-outline-primary">Log in</button>
-    <button *ngIf="user" (click)="logout()" class="btn btn-outline-danger">Log out</button>
+    <button *ngIf="!authUser" (click)="login()" class="btn btn-outline-primary">Log in</button>
+    <button *ngIf="authUser" (click)="logout()" class="btn btn-outline-danger">Log out</button>
     <h2 *ngIf="!firebaseUser">Firebase Auth</h2>
     <h2 *ngIf="firebaseUser">Firebase Auth (カスタム認証)</h2>
     <div>
       <pre>{{firebaseUser | json}}</pre>
     </div>
-    <h2 *ngIf="!user">Auth0</h2>
-    <h2 *ngIf="user">Auth0 (provider: {{user?.identities[0].provider}})</h2>
+    <h2 *ngIf="!authUser">Auth0</h2>
+    <h2 *ngIf="authUser">Auth0 (provider: {{authUser?.identities[0].provider}})</h2>
     <div>
-      <figure *ngIf="user" class="figure">
-        <img [src]="user.picture" class="figure-img img-fluid rounded" alt="user picture" width=150 height=150>
-        <figcaption class="figure-caption">picture of {{user.screen_name || user.nickname || user.name}}</figcaption>
+      <figure *ngIf="authUser" class="figure">
+        <img [src]="authUser.picture" class="figure-img img-fluid rounded" alt="user picture" width=150 height=150>
+        <figcaption class="figure-caption">picture of {{authUser.screen_name || authUser.nickname || authUser.name}}</figcaption>
       </figure>
-      <pre>{{user | json}}</pre>      
+      <pre>{{authUser | json}}</pre>      
     </div>    
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileComponent implements OnChanges {
   @Input()
-  user: Auth0UserProfile | null;
+  authUser: AuthUser | null;
   @Input()
   firebaseUser: FirebaseUser | null;
 
 
   constructor(
-    private authService: Auth0Service,
-    private cd: ChangeDetectorRef,
+    private authService: AuthService,
   ) { }
 
 
@@ -50,10 +50,9 @@ export class ProfileComponent implements OnChanges {
 
   async logout(): Promise<void> {
     await this.authService.logout();
-    this.cd.markForCheck();
     setTimeout(() => {
       alert('Log out');
-    }, 10);
+    }, 100);
   }
 
 }

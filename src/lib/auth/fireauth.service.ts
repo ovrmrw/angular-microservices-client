@@ -3,6 +3,8 @@ import { Http, Headers } from '@angular/http';
 import { Observable, ReplaySubject } from 'rxjs/Rx';
 import * as firebase from 'firebase';
 
+import { Dispatcher, Action, NextFirebaseUserProfile } from '../store';
+import { FirebaseUser } from '../types';
 import { fireauthConfig, createCustomTokenFunctionConfig as functionConfig } from './fireauth.config';
 
 firebase.initializeApp(fireauthConfig);
@@ -12,13 +14,12 @@ const ENDPOINT = functionConfig.api + functionConfig.function;
 
 @Injectable()
 export class FirebaseAuthService {
-  // readonly firebaseAuthenticated = new BehaviorSubject<boolean>(false);
   readonly firebaseCurrentUser$ = new ReplaySubject<FirebaseUser | null>();
 
 
   constructor(
-    // private http: Http,
     private http: Http,
+    private dispatcher$: Dispatcher<Action>,
   ) {
     this.stanby();
   }
@@ -30,16 +31,12 @@ export class FirebaseAuthService {
       'x-functions-key': functionConfig.code,
     });
 
-    try {
-      const result = await this.http.post(ENDPOINT, { user_id }, { headers })
-        // .timeoutWith(2000, Observable.throw('timeout'))
-        .map(res => res.json().result as { customToken: string })
-        .toPromise();
-      console.log('createCustomToken result:', result);
-      await firebase.auth().signInWithCustomToken(result.customToken);
-    } catch (err) {
-      console.error(err);
-    }
+    const result = await this.http.post(ENDPOINT, { user_id }, { headers })
+      .timeoutWith(1000 * 30, Observable.throw('timeout'))
+      .map(res => res.json().result as { customToken: string })
+      .toPromise();
+    console.log('createCustomToken result:', result);
+    await firebase.auth().signInWithCustomToken(result.customToken);
   }
 
 
@@ -53,10 +50,12 @@ export class FirebaseAuthService {
       if (user) {
         console.log('Firebase Auth: LOG-IN');
         console.log('user:', user);
-        this.firebaseCurrentUser$.next(user);
+        // this.firebaseCurrentUser$.next(user);
+        this.dispatcher$.next(new NextFirebaseUserProfile(user));
       } else {
         console.log('Firebase Auth: LOG-OUT');
-        this.firebaseCurrentUser$.next(null);
+        // this.firebaseCurrentUser$.next(null);
+        this.dispatcher$.next(new NextFirebaseUserProfile(null));
       }
     });
   }
@@ -74,12 +73,4 @@ export class FirebaseAuthService {
     }
   }
 
-
-  get currentUser$(): Observable<FirebaseUser | null> {
-    return this.firebaseCurrentUser$.asObservable();
-  }
-
 }
-
-
-export type FirebaseUser = firebase.User;

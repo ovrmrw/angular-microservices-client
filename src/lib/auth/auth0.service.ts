@@ -1,16 +1,14 @@
 import { Injectable, Optional, Inject } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs/Rx';
 import { tokenNotExpired } from 'angular2-jwt';
-// import * as firebase from 'firebase';
 import Auth0Lock from 'auth0-lock';
+
+import { AuthUser } from '../types';
+import { Store, Dispatcher, Action, NextAuthIdToken, NextAuthUserProfile } from '../store';
 
 import { FirebaseAuthService } from './fireauth.service';
 import { auth0Config as config } from './auth0.config';
-// import { firebaseConfig } from '../../environments/firebase';
-// import { host } from '../../environments/params';
-
-export const AUTH0_ID_TOKEN = 'auth0_id_token';
-const AUTH0_PROFILE = 'auth0_profile';
+import { AUTH_ID_TOKEN, AUTH_PROFILE } from '../const';
 
 
 const auth0ClientId = config.auth0ClientId;
@@ -24,29 +22,31 @@ const auth0Options = {
 
 
 @Injectable()
-export class Auth0Service {
+export class AuthService {
   private lock: Auth0LockStatic;
-  // readonly auth0Authenticated$ = new BehaviorSubject<boolean>(false);
-  readonly auth0UserProfile$ = new ReplaySubject<Auth0UserProfile | null>();
+  readonly auth0User$ = new ReplaySubject<AuthUser | null>();
 
 
   constructor(
     @Inject(FirebaseAuthService) @Optional()
     private fireauthService: FirebaseAuthService | null,
+    private dispatcher$: Dispatcher<Action>,
+    private store: Store,
   ) {
     (async () => {
+      this.initAuthenticatedState();
       await this.nextAuthenticatedState();
 
       this.lock = new Auth0Lock(auth0ClientId, auth0Domain, auth0Options);
 
       this.lock.on('authenticated', async (authResult) => {
-        localStorage.setItem(AUTH0_ID_TOKEN, authResult.idToken);
+        this.dispatcher$.next(new NextAuthIdToken(authResult.idToken));
         console.log('authResult:', authResult);
         await this.nextAuthenticatedState();
 
         this.lock.getProfile(authResult.idToken, async (err, profile) => {
           if (err) { throw err; }
-          localStorage.setItem(AUTH0_PROFILE, JSON.stringify(profile));
+          this.dispatcher$.next(new NextAuthUserProfile(profile));
           console.log('profile:', profile);
           await this.nextAuthenticatedState();
         });
@@ -61,38 +61,43 @@ export class Auth0Service {
 
 
   async logout(): Promise<void> {
-    localStorage.removeItem(AUTH0_ID_TOKEN);
-    localStorage.removeItem(AUTH0_PROFILE);
+    this.dispatcher$.next(new NextAuthIdToken(null));
+    this.dispatcher$.next(new NextAuthUserProfile(null));
     await this.nextAuthenticatedState();
   }
 
 
-  get currentUserProfile$(): Observable<Auth0UserProfile | null> {
-    return this.auth0UserProfile$.asObservable();
+  private initAuthenticatedState(): void {
+    const idToken: string | null = localStorage.getItem(AUTH_ID_TOKEN);
+    this.dispatcher$.next(new NextAuthIdToken(idToken));
+
+    const profile: string | null = localStorage.getItem(AUTH_PROFILE);
+    if (profile) {
+      const parsedProfile: AuthUser = JSON.parse(profile);
+      this.dispatcher$.next(new NextAuthUserProfile(parsedProfile));
+    } else {
+      this.dispatcher$.next(new NextAuthUserProfile(null));
+    }
   }
 
 
   private async nextAuthenticatedState(): Promise<void> {
-    const isAuthenticated: boolean = tokenNotExpired(AUTH0_ID_TOKEN);
-    if (isAuthenticated) {
+    const isTokenNotExpired: boolean = tokenNotExpired(AUTH_ID_TOKEN);
+    if (isTokenNotExpired) {
       console.log('Auth0: LOG-IN');
     } else {
       console.log('Auth0: LOG-OUT');
     }
-    // this.auth0Authenticated$.next(isAuthenticated);
 
-    const profile: string | null = localStorage.getItem(AUTH0_PROFILE);
-    if (profile && isAuthenticated) {
-      const parsedProfile: Auth0UserProfile = JSON.parse(profile);
-      this.auth0UserProfile$.next(parsedProfile);
+    const state = await this.store.getState().take(1).toPromise();
+
+    if (isTokenNotExpired && state.authUser) {
       if (this.fireauthService) {
-        const idToken: string | null = localStorage.getItem(AUTH0_ID_TOKEN);
-        if (idToken) {
-          await this.fireauthService.login(idToken, parsedProfile.user_id);
+        if (state.authIdToken) {
+          await this.fireauthService.login(state.authIdToken, state.authUser.user_id);
         }
       }
     } else {
-      this.auth0UserProfile$.next(null);
       if (this.fireauthService) {
         await this.fireauthService.logout();
       }
