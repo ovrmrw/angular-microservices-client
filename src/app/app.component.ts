@@ -10,41 +10,48 @@ import { Store } from '../lib/store';
 @Component({
   selector: 'app-root',
   template: `
-    <my-profile [authUser]="authUser" [firebaseUser]="firebaseUser"></my-profile>
+    <nav class="navbar navbar-light bg-faded">
+      <ul class="nav navbar-nav">
+        <li class="nav-item" routerLinkActive="active">
+          <a class="nav-link" [routerLink]="['/welcome']">Welcome</a>
+        </li>
+        <li class="nav-item" routerLinkActive="active">
+          <a class="nav-link" [routerLink]="['/profile']">Profile</a>
+        </li>
+      </ul>
+    </nav>
+    <router-outlet></router-outlet>
   `,
   styleUrls: ['./app.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements OnInit, OnDestroy {
-  authUser: AuthUser | null;
-  firebaseUser: FirebaseUser | null;
+export class AppComponent /*implements OnInit, OnDestroy*/ {
+  // authUser: AuthUser | null;
+  // firebaseUser: FirebaseUser | null;
 
 
-  constructor(
-    private authService: AuthService,
-    private firebaseService: FirebaseAuthService,
-    private disposer: DisposerService,
-    private store: Store,
-    private cd: ChangeDetectorRef,
-  ) { }
+  // constructor(
+  //   private authService: AuthService,
+  //   private firebaseService: FirebaseAuthService,
+  //   private disposer: DisposerService,
+  //   private store: Store,
+  //   private cd: ChangeDetectorRef,
+  // ) { }
 
 
-  ngOnInit() {
-    this.disposer.add =
-      this.store.getState().subscribe(async (state) => {
-        this.authUser = state.authUser;
-        this.firebaseUser = state.firebaseUser;
-        this.cd.markForCheck();
-        if (this.authUser && this.firebaseUser) {
-          await this.firebaseService.writeUserProfile(this.authUser, this.firebaseUser);
-          console.log('writeUserProfile is successed.');
-        }
-      });
-  }
+  // ngOnInit() {
+  //   this.disposer.registerWithToken(this,
+  //     this.store.getState().subscribe(state => {
+  //       this.authUser = state.authUser;
+  //       this.firebaseUser = state.firebaseUser;
+  //       this.cd.markForCheck();
+  //     })
+  //   );
+  // }
 
 
-  ngOnDestroy() {
-    this.disposer.disposeSubscriptions();
-  }
+  // ngOnDestroy() {
+  //   this.disposer.disposeSubscriptions(this);
+  // }
 
 }

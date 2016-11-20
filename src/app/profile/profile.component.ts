@@ -1,14 +1,14 @@
-import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 
 import { AuthService } from '../../lib/auth';
 import { AuthUser, FirebaseUser } from '../../lib/types';
+import { Store } from '../../lib/store';
+import { DisposerService } from '../../lib/disposer';
 
 
 @Component({
-  selector: 'my-profile',
-  template: `    
-    <button *ngIf="!authUser" (click)="login()" class="btn btn-outline-primary">Log in</button>
-    <button *ngIf="authUser" (click)="logout()" class="btn btn-outline-danger">Log out</button>
+  selector: 'profile-page',
+  template: `   
     <h2 *ngIf="!firebaseUser">Firebase Auth</h2>
     <h2 *ngIf="firebaseUser">Firebase Auth (カスタム認証)</h2>
     <div>
@@ -26,33 +26,51 @@ import { AuthUser, FirebaseUser } from '../../lib/types';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfileComponent implements OnChanges {
-  @Input()
+export class ProfileComponent implements OnInit, OnDestroy {
+  // @Input()
   authUser: AuthUser | null;
-  @Input()
+  // @Input()
   firebaseUser: FirebaseUser | null;
 
 
   constructor(
     private authService: AuthService,
+    private store: Store,
+    private disposer: DisposerService,
+    private cd: ChangeDetectorRef,
   ) { }
 
 
-  ngOnChanges(changes: SimpleChanges) {
-    console.log('changes:', changes);
+  // ngOnChanges(changes: SimpleChanges) {
+  //   console.log('changes:', changes);
+  // }
+
+  ngOnInit() {
+    this.disposer.registerWithToken(this,
+      this.store.getState().subscribe(state => {
+        this.authUser = state.authUser;
+        this.firebaseUser = state.firebaseUser;
+        this.cd.markForCheck();
+      })
+    );
   }
 
 
-  login(): void {
-    this.authService.login();
+  ngOnDestroy() {
+    this.disposer.disposeSubscriptions(this);
   }
 
 
-  async logout(): Promise<void> {
-    await this.authService.logout();
-    setTimeout(() => {
-      alert('Log out');
-    }, 100);
-  }
+  // login(): void {
+  //   this.authService.login();
+  // }
+
+
+  // async logout(): Promise<void> {
+  //   await this.authService.logout();
+  //   setTimeout(() => {
+  //     alert('Log out');
+  //   }, 100);
+  // }
 
 }

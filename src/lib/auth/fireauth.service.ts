@@ -3,7 +3,7 @@ import { Http, Headers } from '@angular/http';
 import { Observable, ReplaySubject } from 'rxjs/Rx';
 import * as firebase from 'firebase';
 
-import { Dispatcher, Action, NextFirebaseUserProfile } from '../store';
+import { Store, Dispatcher, Action, NextFirebaseUserProfile } from '../store';
 import { FirebaseUser } from '../types';
 import { fireauthConfig, createCustomTokenFunctionConfig as functionConfig } from './fireauth.config';
 
@@ -20,28 +20,37 @@ export class FirebaseAuthService {
   constructor(
     private http: Http,
     private dispatcher$: Dispatcher<Action>,
+    private store: Store,
   ) {
     this.stanby();
   }
 
 
   async login(auth0IdToken: string, user_id: string): Promise<void> {
-    const headers = new Headers({
-      'Authorization': 'Bearer ' + auth0IdToken,
-      'x-functions-key': functionConfig.code,
-    });
+    try {
+      const headers = new Headers({
+        'Authorization': 'Bearer ' + auth0IdToken,
+        'x-functions-key': functionConfig.code,
+      });
 
-    const result = await this.http.post(ENDPOINT, { user_id }, { headers })
-      .timeoutWith(1000 * 30, Observable.throw('timeout'))
-      .map(res => res.json().result as { customToken: string })
-      .toPromise();
-    console.log('createCustomToken result:', result);
-    await firebase.auth().signInWithCustomToken(result.customToken);
+      const result = await this.http.post(ENDPOINT, { user_id }, { headers })
+        .timeoutWith(1000 * 30, Observable.throw('createCustomToken request is timeout.'))
+        .map(res => res.json().result as { customToken: string })
+        .toPromise();
+      console.log('createCustomToken result:', result);
+      await firebase.auth().signInWithCustomToken(result.customToken);
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 
 
   async logout(): Promise<void> {
-    await firebase.auth().signOut();
+    try {
+      await firebase.auth().signOut();
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 
 
@@ -49,12 +58,15 @@ export class FirebaseAuthService {
     firebase.auth().onAuthStateChanged((user: FirebaseUser) => {
       if (user) {
         console.log('Firebase Auth: LOG-IN');
-        console.log('user:', user);
-        // this.firebaseCurrentUser$.next(user);
         this.dispatcher$.next(new NextFirebaseUserProfile(user));
+        this.store.getState().take(1).subscribe(async (state) => {
+          if (state.authUser) {
+            await this.writeUserProfile(state.authUser, user);
+            console.log('writeUserProfile is successed.');
+          }
+        });
       } else {
         console.log('Firebase Auth: LOG-OUT');
-        // this.firebaseCurrentUser$.next(null);
         this.dispatcher$.next(new NextFirebaseUserProfile(null));
       }
     });
@@ -62,14 +74,18 @@ export class FirebaseAuthService {
 
 
   async writeUserProfile(auth0UserProfile: Auth0UserProfile, firebaseUser: firebase.User): Promise<void> {
-    const user = firebase.auth().currentUser;
-    if (user) {
-      const p1 = firebase.database().ref('profile/' + user.uid + '/auth0').set(auth0UserProfile) as Promise<any>;
+    try {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        const p1 = firebase.database().ref('profile/' + user.uid + '/auth0').set(auth0UserProfile) as Promise<any>;
 
-      const parsedFirebaseUser = JSON.parse(JSON.stringify(firebaseUser));
-      const p2 = firebase.database().ref('profile/' + user.uid + '/firebase').set(parsedFirebaseUser) as Promise<any>;
+        const parsedFirebaseUser = JSON.parse(JSON.stringify(firebaseUser));
+        const p2 = firebase.database().ref('profile/' + user.uid + '/firebase').set(parsedFirebaseUser) as Promise<any>;
 
-      await Promise.all([p1, p2]).catch(err => console.error(err));
+        await Promise.all([p1, p2]);
+      }
+    } catch (err) {
+      throw new Error(err);
     }
   }
 

@@ -15,9 +15,10 @@ const auth0ClientId = config.auth0ClientId;
 const auth0Domain = config.auth0Domain;
 const auth0Options = {
   auth: {
-    // redirect: false
+    redirect: false
   },
   autoclose: true,
+  // redirectUrl: location.protocol + location.host,
 };
 
 
@@ -63,44 +64,50 @@ export class AuthService {
   async logout(): Promise<void> {
     this.dispatcher$.next(new NextAuthIdToken(null));
     this.dispatcher$.next(new NextAuthUserProfile(null));
-    await this.nextAuthenticatedState();
+    if (this.fireauthService) {
+      await this.fireauthService.logout();
+    }
   }
 
 
   private initAuthenticatedState(): void {
-    const idToken: string | null = localStorage.getItem(AUTH_ID_TOKEN);
-    this.dispatcher$.next(new NextAuthIdToken(idToken));
+    if (this.isTokenAcceptable) {
+      const idToken: string | null = localStorage.getItem(AUTH_ID_TOKEN);
+      this.dispatcher$.next(new NextAuthIdToken(idToken));
 
-    const profile: string | null = localStorage.getItem(AUTH_PROFILE);
-    if (profile) {
-      const parsedProfile: AuthUser = JSON.parse(profile);
-      this.dispatcher$.next(new NextAuthUserProfile(parsedProfile));
-    } else {
-      this.dispatcher$.next(new NextAuthUserProfile(null));
+      const profile: string | null = localStorage.getItem(AUTH_PROFILE);
+      if (profile) {
+        const parsedProfile: AuthUser = JSON.parse(profile);
+        this.dispatcher$.next(new NextAuthUserProfile(parsedProfile));
+      } else {
+        this.dispatcher$.next(new NextAuthUserProfile(null));
+      }
     }
   }
 
 
   private async nextAuthenticatedState(): Promise<void> {
-    const isTokenNotExpired: boolean = tokenNotExpired(AUTH_ID_TOKEN);
-    if (isTokenNotExpired) {
+    if (this.isTokenAcceptable) {
       console.log('Auth0: LOG-IN');
+      const state = await this.store.getState().take(1).toPromise();
+      if (this.fireauthService && state.authIdToken && state.authUser) {
+        await this.fireauthService.login(state.authIdToken, state.authUser.user_id);
+      }
     } else {
       console.log('Auth0: LOG-OUT');
+      this.logout();
     }
+  }
 
-    const state = await this.store.getState().take(1).toPromise();
 
-    if (isTokenNotExpired && state.authUser) {
-      if (this.fireauthService) {
-        if (state.authIdToken) {
-          await this.fireauthService.login(state.authIdToken, state.authUser.user_id);
-        }
-      }
+  private get isTokenAcceptable(): boolean {
+    const flag = tokenNotExpired(AUTH_ID_TOKEN);
+    if (flag) {
+      console.log('tokenNotExpired() === true');
+      return true;
     } else {
-      if (this.fireauthService) {
-        await this.fireauthService.logout();
-      }
+      console.log('tokenNotExpired() === false');
+      return false;
     }
   }
 
