@@ -16,10 +16,10 @@ import { Store } from '../lib/store';
         <li class="nav-item" routerLinkActive="active">
           <a class="nav-link" [routerLink]="['/welcome']">Welcome</a>
         </li>
-        <li *ngIf="authUser" class="nav-item" routerLinkActive="active">
+        <li class="nav-item" routerLinkActive="active">
           <a class="nav-link" [routerLink]="['/profile']">Profile</a>
         </li>
-        <li *ngIf="authUser" class="nav-item" routerLinkActive="active">
+        <li class="nav-item" routerLinkActive="active">
           <a class="nav-link" [routerLink]="['/graphql']">GraphQL</a>
         </li>
       </ul>

@@ -29,11 +29,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.disposer.registerWithToken(this,
       this.store.getState().subscribe(state => {
-        // if (state.authIdToken && state.authUser) {
-        //   this.loginState = true;
-        // } else {
-        //   this.loginState = false;
-        // }
         this.loginState = !!state.authIdToken && !!state.authUser;
         this.cd.markForCheck();
       })
@@ -53,9 +48,9 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   async logout(): Promise<void> {
     await this.authService.logout();
-    setTimeout(() => {
-      alert('Log out');
-    }, 100);
+    // setTimeout(() => {
+    //   alert('Log out');
+    // }, 100);
   }
 
 }

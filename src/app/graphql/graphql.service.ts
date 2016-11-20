@@ -63,7 +63,7 @@ export class GraphqlService {
       });
 
       const result = await this.http.post(ENDPOINT, { query: strQuery }, { headers })
-        .timeoutWith(1000 * 10, Observable.throw('request is timeout.'))
+        .timeoutWith(1000 * 30, Observable.throw('request is timeout.'))
         .map(res => res.json().result as { data: any })
         .toPromise();
       console.log('request result:', result);
@@ -71,6 +71,7 @@ export class GraphqlService {
         this.dispatcher$.next(new RequestGraphUsersAction(result.data));
       }
     } catch (err) {
+      alert(err);
       throw new Error(err);
     }
   }
