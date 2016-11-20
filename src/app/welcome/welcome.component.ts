@@ -11,7 +11,7 @@ import { Store } from '../../lib/store';
   template: `
     <h1 class="display-3">Welcome</h1>
     <hr />
-    <login-button></login-button>
+    <!--<login-button></login-button>-->
     <profile-page></profile-page>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

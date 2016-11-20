@@ -8,6 +8,9 @@ import { AppComponent } from './app.component';
 import { ProfileComponent } from './profile/profile.component';
 import { LoginComponent } from './login/login.component';
 import { WelcomeComponent } from './welcome/welcome.component';
+import { GraphqlComponent } from './graphql/graphql.component';
+
+import { GraphqlService } from './graphql/graphql.service';
 
 import { AuthModule } from '../lib/auth';
 import { DisposerModule } from '../lib/disposer';
@@ -22,11 +25,15 @@ const appRoutes: Routes = [
   },
   {
     path: 'welcome',
-    component: WelcomeComponent,
+    component: WelcomeComponent
   },
   {
     path: 'profile',
     component: ProfileComponent
+  },
+  {
+    path: 'graphql',
+    component: GraphqlComponent
   }
 ];
 
@@ -37,6 +44,7 @@ const appRoutes: Routes = [
     ProfileComponent,
     LoginComponent,
     WelcomeComponent,
+    GraphqlComponent,
   ],
   imports: [
     BrowserModule,
@@ -47,7 +55,9 @@ const appRoutes: Routes = [
     StoreModule,
     RouterModule.forRoot(appRoutes),
   ],
-  providers: [],
+  providers: [
+    GraphqlService,
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

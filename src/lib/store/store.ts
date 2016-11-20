@@ -5,8 +5,8 @@ import { Dispatcher, Provider, ReducerContainer } from './common';
 import { Action } from './actions';
 import { AppState } from './types';
 import {
-  viewerStateReducer,
   authIdTokenStateReducer, authUserStateReducer, firebaseUserStateReducer,
+  graphUserStateReducer,
 } from './reducers';
 
 
@@ -14,6 +14,7 @@ const initialState: AppState = {
   authIdToken: null,
   authUser: null,
   firebaseUser: null,
+  graphUsers: [],
 };
 
 
@@ -35,9 +36,10 @@ export class Store {
         authIdTokenStateReducer(initialState.authIdToken, this.dispatcher$),
         authUserStateReducer(initialState.authUser, this.dispatcher$),
         firebaseUserStateReducer(initialState.firebaseUser, this.dispatcher$),
+        graphUserStateReducer(initialState.graphUsers, this.dispatcher$),
 
-        (authIdToken, authUser, firebaseUser): AppState => {
-          const obj = { authIdToken, authUser, firebaseUser };
+        (authIdToken, authUser, firebaseUser, graphUsers): AppState => {
+          const obj = { authIdToken, authUser, firebaseUser, graphUsers };
           return Object.assign<{}, AppState, {}>({}, initialState, obj);
         }
       ])

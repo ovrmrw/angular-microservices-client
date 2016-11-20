@@ -29,11 +29,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.disposer.registerWithToken(this,
       this.store.getState().subscribe(state => {
-        if (state.authIdToken && state.authUser) {
-          this.loginState = true;
-        } else {
-          this.loginState = false;
-        }
+        // if (state.authIdToken && state.authUser) {
+        //   this.loginState = true;
+        // } else {
+        //   this.loginState = false;
+        // }
+        this.loginState = !!state.authIdToken && !!state.authUser;
         this.cd.markForCheck();
       })
     );

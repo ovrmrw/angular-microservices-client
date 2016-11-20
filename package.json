@@ -36,10 +36,12 @@
   },
   "devDependencies": {
     "@types/auth0-lock": "^10.0.21",
+    "@types/chai": "^3.4.34",
     "@types/jasmine": "^2.2.30",
     "@types/lodash": "^4.14.39",
     "@types/node": "^6.0.42",
     "angular-cli": "1.0.0-beta.19-3",
+    "chai": "^3.5.0",
     "codelyzer": "1.0.0-beta.1",
     "jasmine-core": "2.4.1",
     "jasmine-spec-reporter": "2.5.0",
@@ -51,6 +53,7 @@
     "protractor": "4.0.9",
     "ts-node": "1.2.1",
     "tslint": "3.13.0",
+    "typed-graphql": "^1.0.2",
     "typescript": "^2.1.1",
     "webdriver-manager": "10.2.5"
   }

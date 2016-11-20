@@ -11,6 +11,7 @@ import { Store } from '../lib/store';
   selector: 'app-root',
   template: `
     <nav class="navbar navbar-light bg-faded">
+      <!--<a class="navbar-brand" href="#">Navbar</a>-->
       <ul class="nav navbar-nav">
         <li class="nav-item" routerLinkActive="active">
           <a class="nav-link" [routerLink]="['/welcome']">Welcome</a>
@@ -18,8 +19,15 @@ import { Store } from '../lib/store';
         <li class="nav-item" routerLinkActive="active">
           <a class="nav-link" [routerLink]="['/profile']">Profile</a>
         </li>
+        <li class="nav-item" routerLinkActive="active">
+          <a class="nav-link" [routerLink]="['/graphql']">GraphQL</a>
+        </li>
       </ul>
+      <div class="float-xs-right">
+        <login-button></login-button>       
+      </div>
     </nav>
+
     <router-outlet></router-outlet>
   `,
   styleUrls: ['./app.component.css'],

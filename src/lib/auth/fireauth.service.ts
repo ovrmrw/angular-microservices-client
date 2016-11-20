@@ -3,7 +3,7 @@ import { Http, Headers } from '@angular/http';
 import { Observable, ReplaySubject } from 'rxjs/Rx';
 import * as firebase from 'firebase';
 
-import { Store, Dispatcher, Action, NextFirebaseUserProfile } from '../store';
+import { Store, Dispatcher, Action, NextFirebaseUserProfileAction } from '../store';
 import { FirebaseUser } from '../types';
 import { fireauthConfig, createCustomTokenFunctionConfig as functionConfig } from './fireauth.config';
 
@@ -58,7 +58,7 @@ export class FirebaseAuthService {
     firebase.auth().onAuthStateChanged((user: FirebaseUser) => {
       if (user) {
         console.log('Firebase Auth: LOG-IN');
-        this.dispatcher$.next(new NextFirebaseUserProfile(user));
+        this.dispatcher$.next(new NextFirebaseUserProfileAction(user));
         this.store.getState().take(1).subscribe(async (state) => {
           if (state.authUser) {
             await this.writeUserProfile(state.authUser, user);
@@ -67,7 +67,7 @@ export class FirebaseAuthService {
         });
       } else {
         console.log('Firebase Auth: LOG-OUT');
-        this.dispatcher$.next(new NextFirebaseUserProfile(null));
+        this.dispatcher$.next(new NextFirebaseUserProfileAction(null));
       }
     });
   }

@@ -4,7 +4,7 @@ import { tokenNotExpired } from 'angular2-jwt';
 import Auth0Lock from 'auth0-lock';
 
 import { AuthUser } from '../types';
-import { Store, Dispatcher, Action, NextAuthIdToken, NextAuthUserProfile } from '../store';
+import { Store, Dispatcher, Action, NextAuthIdTokenAction, NextAuthUserProfileAction, LogoutAction } from '../store';
 
 import { FirebaseAuthService } from './fireauth.service';
 import { auth0Config as config } from './auth0.config';
@@ -41,13 +41,13 @@ export class AuthService {
       this.lock = new Auth0Lock(auth0ClientId, auth0Domain, auth0Options);
 
       this.lock.on('authenticated', async (authResult) => {
-        this.dispatcher$.next(new NextAuthIdToken(authResult.idToken));
+        this.dispatcher$.next(new NextAuthIdTokenAction(authResult.idToken));
         console.log('authResult:', authResult);
         await this.nextAuthenticatedState();
 
         this.lock.getProfile(authResult.idToken, async (err, profile) => {
           if (err) { throw err; }
-          this.dispatcher$.next(new NextAuthUserProfile(profile));
+          this.dispatcher$.next(new NextAuthUserProfileAction(profile));
           console.log('profile:', profile);
           await this.nextAuthenticatedState();
         });
@@ -62,8 +62,7 @@ export class AuthService {
 
 
   async logout(): Promise<void> {
-    this.dispatcher$.next(new NextAuthIdToken(null));
-    this.dispatcher$.next(new NextAuthUserProfile(null));
+    this.dispatcher$.next(new LogoutAction());
     if (this.fireauthService) {
       await this.fireauthService.logout();
     }
@@ -73,14 +72,14 @@ export class AuthService {
   private initAuthenticatedState(): void {
     if (this.isTokenAcceptable) {
       const idToken: string | null = localStorage.getItem(AUTH_ID_TOKEN);
-      this.dispatcher$.next(new NextAuthIdToken(idToken));
+      this.dispatcher$.next(new NextAuthIdTokenAction(idToken));
 
       const profile: string | null = localStorage.getItem(AUTH_PROFILE);
       if (profile) {
         const parsedProfile: AuthUser = JSON.parse(profile);
-        this.dispatcher$.next(new NextAuthUserProfile(parsedProfile));
+        this.dispatcher$.next(new NextAuthUserProfileAction(parsedProfile));
       } else {
-        this.dispatcher$.next(new NextAuthUserProfile(null));
+        this.dispatcher$.next(new NextAuthUserProfileAction(null));
       }
     }
   }
