@@ -16,10 +16,10 @@ import { Store } from '../lib/store';
         <li class="nav-item" routerLinkActive="active">
           <a class="nav-link" [routerLink]="['/welcome']">Welcome</a>
         </li>
-        <li class="nav-item" routerLinkActive="active">
+        <li *ngIf="authUser" class="nav-item" routerLinkActive="active">
           <a class="nav-link" [routerLink]="['/profile']">Profile</a>
         </li>
-        <li class="nav-item" routerLinkActive="active">
+        <li *ngIf="authUser" class="nav-item" routerLinkActive="active">
           <a class="nav-link" [routerLink]="['/graphql']">GraphQL</a>
         </li>
       </ul>
@@ -33,33 +33,30 @@ import { Store } from '../lib/store';
   styleUrls: ['./app.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent /*implements OnInit, OnDestroy*/ {
-  // authUser: AuthUser | null;
-  // firebaseUser: FirebaseUser | null;
+export class AppComponent implements OnInit, OnDestroy {
+  authUser: AuthUser | null;
 
 
-  // constructor(
-  //   private authService: AuthService,
-  //   private firebaseService: FirebaseAuthService,
-  //   private disposer: DisposerService,
-  //   private store: Store,
-  //   private cd: ChangeDetectorRef,
-  // ) { }
+  constructor(
+    private authService: AuthService,
+    private disposer: DisposerService,
+    private store: Store,
+    private cd: ChangeDetectorRef,
+  ) { }
 
 
-  // ngOnInit() {
-  //   this.disposer.registerWithToken(this,
-  //     this.store.getState().subscribe(state => {
-  //       this.authUser = state.authUser;
-  //       this.firebaseUser = state.firebaseUser;
-  //       this.cd.markForCheck();
-  //     })
-  //   );
-  // }
+  ngOnInit() {
+    this.disposer.registerWithToken(this,
+      this.store.getState().subscribe(state => {
+        this.authUser = state.authUser;
+        this.cd.markForCheck();
+      })
+    );
+  }
 
 
-  // ngOnDestroy() {
-  //   this.disposer.disposeSubscriptions(this);
-  // }
+  ngOnDestroy() {
+    this.disposer.disposeSubscriptions(this);
+  }
 
 }

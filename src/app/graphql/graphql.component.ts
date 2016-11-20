@@ -20,6 +20,7 @@ import { DisposerService } from '../../lib/disposer';
 export class GraphqlComponent implements OnInit, OnDestroy {
   users: User[];
 
+
   constructor(
     private service: GraphqlService,
     private store: Store,
