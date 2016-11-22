@@ -7,9 +7,11 @@ import { Store, Dispatcher, Action, NextFirebaseUserProfileAction } from '../sto
 import { FirebaseUser } from '../types';
 import { fireauthConfig, createCustomTokenFunctionConfig as functionConfig } from './fireauth.config';
 
-firebase.initializeApp(fireauthConfig);
-
 const ENDPOINT = functionConfig.api + functionConfig.function;
+const FUNCTION_KEY = functionConfig.code;
+
+
+firebase.initializeApp(fireauthConfig);
 
 
 @Injectable()
@@ -30,7 +32,7 @@ export class FirebaseAuthService {
     try {
       const headers = new Headers({
         'Authorization': 'Bearer ' + auth0IdToken,
-        'x-functions-key': functionConfig.code,
+        'x-functions-key': FUNCTION_KEY,
       });
 
       const result = await this.http.post(ENDPOINT, { user_id }, { headers })

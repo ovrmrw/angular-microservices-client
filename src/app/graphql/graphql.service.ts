@@ -6,10 +6,10 @@ import gql from 'graphql-tag';
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
 
 import { Store, Dispatcher, Action, RequestGraphUsersAction, ClearGraphUsersAction } from '../../lib/store';
+import { graphqlFunctionConfig as functionConfig } from './graphql.config';
 
-
-const ENDPOINT = 'https://second-azure-functions.azurewebsites.net/api/graphql';
-const FUNCTION_KEY = 'qj6WpLvHzcxAagjYWml9yZpaQyTnRgMuJYJvexRj4SWjfX83BqLvBg==';
+const ENDPOINT = functionConfig.api + '/' + functionConfig.function;
+const FUNCTION_KEY = functionConfig.code;
 
 
 const gqlQuery = gql`

@@ -8,7 +8,7 @@ export const fireauthConfig = {
 
 
 export const createCustomTokenFunctionConfig = {
-  api: 'https://second-azure-functions.azurewebsites.net/api/',
+  api: 'https://third-azure-functions.azurewebsites.net/api/',
   function: 'createCustomToken',
-  code: 'qbdp15u2brv0fr04eku766romygls191rledjzbp22o6rf60l1b7t1xvnod2ngexi6hia4i',
+  code: 'uyIoq6fIoG23nOatmD3oeI65TGGeMBg/8ryQkJXAap6yhaJfvkuCag==',
 };
