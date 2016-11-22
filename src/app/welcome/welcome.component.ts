@@ -9,7 +9,8 @@ import { Store } from '../../lib/store';
 @Component({
   selector: 'welcome-page',
   template: `
-    <h1 class="display-3">Welcome</h1>
+    <h1 *ngIf="!isAuthed">Welcome (please log in)</h1>
+    <h1 *ngIf="isAuthed">Welcome</h1>
     <hr />
     <!--<login-button></login-button>-->
     <profile-page></profile-page>
@@ -17,13 +18,9 @@ import { Store } from '../../lib/store';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WelcomeComponent implements OnInit, OnDestroy {
-  authUser: AuthUser | null;
-  firebaseUser: FirebaseUser | null;
-
+  isAuthed: boolean;
 
   constructor(
-    private authService: AuthService,
-    private firebaseService: FirebaseAuthService,
     private disposer: DisposerService,
     private store: Store,
     private cd: ChangeDetectorRef,
@@ -33,8 +30,7 @@ export class WelcomeComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.disposer.registerWithToken(this,
       this.store.getState().subscribe(state => {
-        this.authUser = state.authUser;
-        this.firebaseUser = state.firebaseUser;
+        this.isAuthed = state.isAuthed;
         this.cd.markForCheck();
       })
     );

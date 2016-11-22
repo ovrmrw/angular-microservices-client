@@ -34,9 +34,7 @@ import { DisposerService } from '../../lib/disposer';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileComponent implements OnInit, OnDestroy {
-  // @Input()
   authUser: AuthUser | null;
-  // @Input()
   firebaseUser: FirebaseUser | null;
   nullValue = null;;
 
@@ -48,10 +46,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private cd: ChangeDetectorRef,
   ) { }
 
-
-  // ngOnChanges(changes: SimpleChanges) {
-  //   console.log('changes:', changes);
-  // }
 
   ngOnInit() {
     this.disposer.registerWithToken(this,
@@ -67,18 +61,5 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.disposer.disposeSubscriptions(this);
   }
-
-
-  // login(): void {
-  //   this.authService.login();
-  // }
-
-
-  // async logout(): Promise<void> {
-  //   await this.authService.logout();
-  //   setTimeout(() => {
-  //     alert('Log out');
-  //   }, 100);
-  // }
 
 }

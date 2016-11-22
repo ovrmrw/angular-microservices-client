@@ -15,6 +15,7 @@ const initialState: AppState = {
   authUser: null,
   firebaseUser: null,
   graphUsers: [],
+  isAuthed: false,
 };
 
 
@@ -40,7 +41,8 @@ export class Store {
 
         (authIdToken, authUser, firebaseUser, graphUsers): AppState => {
           const obj = { authIdToken, authUser, firebaseUser, graphUsers };
-          return Object.assign<{}, AppState, {}>({}, initialState, obj);
+          const isAuthed = !!authIdToken && !!authUser;
+          return Object.assign<{}, AppState, {}, {}>({}, initialState, obj, { isAuthed });
         }
       ])
       .subscribe(newState => {

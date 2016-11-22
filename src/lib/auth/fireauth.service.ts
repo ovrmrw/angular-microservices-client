@@ -34,7 +34,7 @@ export class FirebaseAuthService {
       });
 
       const result = await this.http.post(ENDPOINT, { user_id }, { headers })
-        .timeoutWith(1000 * 30, Observable.throw('createCustomToken request is timeout.'))
+        .timeoutWith(1000 * 60, Observable.throw('createCustomToken request is timeout.'))
         .map(res => res.json().result as { customToken: string })
         .toPromise();
       console.log('createCustomToken result:', result);

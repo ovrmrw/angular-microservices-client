@@ -6,6 +6,7 @@ export interface AppState {
   authUser: Auth0UserProfile | null;
   firebaseUser: FirebaseUser | null;
   graphUsers: User[];
+  isAuthed: boolean;
 }
 
 

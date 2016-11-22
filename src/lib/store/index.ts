@@ -3,3 +3,4 @@ export * from './types';
 export { Dispatcher } from './common';
 export { Store } from './store';
 export { StoreModule } from './module';
+export { AuthGuard } from './auth-guard.service';

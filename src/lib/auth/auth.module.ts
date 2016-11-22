@@ -13,6 +13,6 @@ import { AUTH_ID_TOKEN } from '../const';
     provideAuth({
       tokenName: AUTH_ID_TOKEN,
     }),
-  ]
+  ],
 })
 export class AuthModule { }

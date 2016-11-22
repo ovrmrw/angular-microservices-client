@@ -9,13 +9,13 @@ import { DisposerService } from '../../lib/disposer';
 @Component({
   selector: 'login-button',
   template: `    
-    <button *ngIf="!loginState" (click)="login()" class="btn btn-outline-primary">Log in</button>
-    <button *ngIf="loginState" (click)="logout()" class="btn btn-outline-danger">Log out</button>        
+    <button *ngIf="!isAuthed" (click)="login()" class="btn btn-outline-primary">Log in</button>
+    <button *ngIf="isAuthed" (click)="logout()" class="btn btn-outline-danger">Log out</button>        
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent implements OnInit, OnDestroy {
-  loginState = false;
+  isAuthed = false;
 
 
   constructor(
@@ -29,7 +29,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.disposer.registerWithToken(this,
       this.store.getState().subscribe(state => {
-        this.loginState = !!state.authIdToken && !!state.authUser;
+        this.isAuthed = state.isAuthed;
         this.cd.markForCheck();
       })
     );

@@ -1,4 +1,5 @@
 import { Injectable, Optional, Inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable, ReplaySubject } from 'rxjs/Rx';
 import { tokenNotExpired } from 'angular2-jwt';
 import Auth0Lock from 'auth0-lock';
@@ -8,7 +9,7 @@ import { Store, Dispatcher, Action, NextAuthIdTokenAction, NextAuthUserProfileAc
 
 import { FirebaseAuthService } from './fireauth.service';
 import { auth0Config as config } from './auth0.config';
-import { AUTH_ID_TOKEN, AUTH_PROFILE } from '../const';
+import { AUTH_ID_TOKEN, AUTH_PROFILE, WELCOME_PAGE, AppKind } from '../const';
 
 
 const auth0ClientId = config.auth0ClientId;
@@ -29,10 +30,13 @@ export class AuthService {
 
 
   constructor(
-    @Inject(FirebaseAuthService) @Optional()
-    private fireauthService: FirebaseAuthService | null,
+    private router: Router,
     private dispatcher$: Dispatcher<Action>,
     private store: Store,
+    @Inject(AppKind)
+    private appKind: string,
+    @Inject(FirebaseAuthService) @Optional()
+    private fireauthService: FirebaseAuthService | null,
   ) {
     (async () => {
       this.initAuthenticatedState();
@@ -95,6 +99,9 @@ export class AuthService {
     } else {
       console.log('Auth0: LOG-OUT');
       this.logout();
+      if (this.appKind === 'web') {
+        this.router.navigate(['/' + WELCOME_PAGE]);
+      }
     }
   }
 

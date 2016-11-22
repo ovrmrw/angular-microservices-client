@@ -14,7 +14,9 @@ import { GraphqlService } from './graphql/graphql.service';
 
 import { AuthModule } from '../lib/auth';
 import { DisposerModule } from '../lib/disposer';
-import { StoreModule } from '../lib/store';
+import { StoreModule, AuthGuard } from '../lib/store';
+
+import { WELCOME_PAGE, AppKind } from '../lib/const';
 
 
 const appRoutes: Routes = [
@@ -24,16 +26,18 @@ const appRoutes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'welcome',
+    path: WELCOME_PAGE,
     component: WelcomeComponent
   },
   {
     path: 'profile',
-    component: ProfileComponent
+    component: ProfileComponent,
+    canActivate: [AuthGuard],
   },
   {
     path: 'graphql',
-    component: GraphqlComponent
+    component: GraphqlComponent,
+    canActivate: [AuthGuard],
   }
 ];
 
@@ -50,13 +54,14 @@ const appRoutes: Routes = [
     BrowserModule,
     FormsModule,
     HttpModule,
+    RouterModule.forRoot(appRoutes),
+    StoreModule,
     AuthModule,
     DisposerModule,
-    StoreModule,
-    RouterModule.forRoot(appRoutes),
   ],
   providers: [
     GraphqlService,
+    { provide: AppKind, useValue: 'web' }
   ],
   bootstrap: [AppComponent]
 })

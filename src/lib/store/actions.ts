@@ -27,7 +27,6 @@ export class ClearGraphUsersAction {
 }
 
 
-
 export type Action =
   NextAuthIdTokenAction | NextAuthUserProfileAction | NextFirebaseUserProfileAction |
   LogoutAction |
